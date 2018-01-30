@@ -97,6 +97,20 @@ class ViewController: UIViewController, ARSCNViewDelegate {
                     )
         
                     sceneView.scene.rootNode.addChildNode(diceNode)
+                    
+                    // rotating in the y axis wouldn't change the number on the top --> would just spin
+                    let randomX = Float(arc4random_uniform(4) + 1) * Float.pi/2
+                    
+                    let randomZ = Float(arc4random_uniform(4) + 1) * Float.pi/2
+                    
+                    diceNode.runAction(
+                        SCNAction.rotateBy(
+                            // multiplying by 5 makes the roll look more realistic
+                            x: CGFloat(randomX * 5),
+                            y: 0,
+                            z: CGFloat(randomZ * 5),
+                            duration: 0.5)
+                    )
                 }
             }
         }

@@ -11,6 +11,8 @@ import SceneKit
 import ARKit
 
 class ViewController: UIViewController, ARSCNViewDelegate {
+    
+    var diceArray = [SCNNode]()
 
     @IBOutlet var sceneView: ARSCNView!
     
@@ -95,8 +97,13 @@ class ViewController: UIViewController, ARSCNViewDelegate {
                         y: hitResult.worldTransform.columns.3.y + diceNode.boundingSphere.radius,
                         z: hitResult.worldTransform.columns.3.z
                     )
-        
+                    
+                    // appending our dice nodes into our empty dicearray
+                    diceArray.append(diceNode)
+                    
                     sceneView.scene.rootNode.addChildNode(diceNode)
+                    
+                    roll(dice: diceNode)
                     
                     // rotating in the y axis wouldn't change the number on the top --> would just spin
                     let randomX = Float(arc4random_uniform(4) + 1) * Float.pi/2
@@ -116,6 +123,47 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         }
     }
     
+    func rollAll() {
+        if !diceArray.isEmpty {
+            for dice in diceArray {
+                roll(dice: dice)
+            }
+        }
+    }
+    
+    func roll(dice: SCNNode) {
+        let randomX = Float(arc4random_uniform(4) + 1) * Float.pi/2
+        
+        let randomZ = Float(arc4random_uniform(4) + 1) * Float.pi/2
+        
+        dice.runAction(
+            SCNAction.rotateBy(
+                // multiplying by 5 makes the roll look more realistic
+                x: CGFloat(randomX * 5),
+                y: 0,
+                z: CGFloat(randomZ * 5),
+                duration: 0.5)
+        )
+    }
+    
+    // click the refresh button, will roll them
+    @IBAction func rollAgain(_ sender: UIBarButtonItem) {
+        rollAll()
+    }
+    
+    //shake the dice, will roll them
+    override func motionEnded(_ motion: UIEventSubtype, with event: UIEvent?) {
+        rollAll()
+    }
+    
+    // when triggered, will remove all dice from plane
+    @IBAction func removeAllDice(_ sender: UIBarButtonItem) {
+        if !diceArray.isEmpty {
+            for dice in diceArray {
+                dice.removeFromParentNode()
+            }
+        }
+    }
     // when it detects a horizontal plane, it will call this method
     func renderer(_ renderer: SCNSceneRenderer, didAdd node: SCNNode, for anchor: ARAnchor) {
         // we want to check if the anchor is a horizontal plane
